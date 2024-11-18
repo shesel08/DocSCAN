@@ -85,7 +85,7 @@ def hungarian_evaluate(targets, predictions, class_names=None,
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--path", type=str, default="../ag_news", help="")
+    parser.add_argument("--path", type=str, default="ag_news", help="")
     parser.add_argument("--features", type=str, default="sbert", help="")
     parser.add_argument("--train_file", type=str, default="")
     parser.add_argument("--test_file", type=str, default="")

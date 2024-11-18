@@ -5,9 +5,9 @@ import os
 
 
 def preprocess_agnews_data():
-    path_train = "../data/ag_news_csv/train.csv"
-    path_test = "../data/ag_news_csv/test.csv"
-    path_out = "../ag_news"
+    path_train = "data/ag_news_csv/train.csv"
+    path_test = "data/ag_news_csv/test.csv"
+    path_out = "ag_news"
 
     def generate_agnews_data(path, mode, path_out):
         # Create the directory if it doesn't exist
@@ -28,9 +28,9 @@ def preprocess_agnews_data():
 
 
 def preprocess_google_snippets_data():
-    path_train = "../data/google_snippets/data-web-snippets/train.txt"
-    path_test = "../data/google_snippets/data-web-snippets/test.txt"
-    path_out = "../google_snippets"
+    path_train = "data/google_snippets/data-web-snippets/train.txt"
+    path_test = "data/google_snippets/data-web-snippets/test.txt"
+    path_out = "google_snippets"
 
     def generate_google_snippets_data(path, mode, path_out):
         # Create the directory if it doesn't exist
@@ -53,9 +53,9 @@ def preprocess_google_snippets_data():
 
 
 def preprocess_dbpedia_data():
-    path_train = "../data/dbpedia/dbpedia_csv/train.csv"
-    path_test = "../data/dbpedia/dbpedia_csv/test.csv"
-    path_out = "../dbpedia"
+    path_train = "data/dbpedia/dbpedia_csv/train.csv"
+    path_test = "data/dbpedia/dbpedia_csv/test.csv"
+    path_out = "dbpedia"
 
     def generate_dbpedia_data(path, mode, path_out):
         # Create the directory if it doesn't exist
