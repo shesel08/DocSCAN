@@ -21,7 +21,7 @@ python src/compute_sbert_embeddings.py --infile 20newsgroup/train.jsonl --outfil
 python src/compute_sbert_embeddings.py --infile 20newsgroup/test.jsonl --outfile 20newsgroup/test_embedded.pkl
 
 python src/compute_sbert_embeddings.py --infile ag_news/train.jsonl --outfile ag_news/train_embedded.pkl
-python src/compute_sbert_embeddings.py --infile ag_news/test.jsonl --outfile ag_news/test_embedded.pkl
+python src/compute_sbert_embeddings.py --infile ag_news/test.json --outfile ag_news/test_embedded.pkl
 
 python src/compute_sbert_embeddings.py --infile dbpedia/train.jsonl --outfile dbpedia/train_embedded.pkl
 python src/compute_sbert_embeddings.py --infile dbpedia/test.jsonl --outfile dbpedia/test_embedded.pkl

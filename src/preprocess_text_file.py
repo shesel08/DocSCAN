@@ -8,6 +8,10 @@ import random
 
 def preprocess(path, infile):
 	covered = set()
+	# Create the directory if it doesn't exist
+	os.makedirs(path, exist_ok=True)
+
+	# Now open the file
 	with open(os.path.join(path, "train.jsonl"), "w") as train, open(os.path.join(path, "test.jsonl"), "w") as test, open(infile) as f:
 		for line in f:
 			line = line.strip()
@@ -22,7 +26,7 @@ def preprocess(path, infile):
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
-	parser.add_argument("--path", default="20newsgroup", type=str, help="", required=True)
+	parser.add_argument("--path", default="../data/5AbstractsGroup", type=str, help="", required=True)
 	parser.add_argument("--infile", type=str, required=True)
 	args = parser.parse_args()
 	preprocess(args.path, args.infile)
