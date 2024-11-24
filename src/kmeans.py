@@ -100,16 +100,23 @@ if __name__ == "__main__":
         fn_train = os.path.join(args.path, "train_embedded.pkl")
         fn_test = os.path.join(args.path, "test_embedded.pkl")
 
-    df_train = pd.read_json(fn_train, lines=True)
 
-    # shuffle
-    df_train = df_train.sample(frac=1)
-    df_test = pd.read_json(fn_test, lines=True)
-    print(args.features)
 
     if args.features == "sbert":
+        df_train = pd.read_pickle(fn_train, lines=True)
+
+        # shuffle
+        df_train = df_train.sample(frac=1)
+        df_test = pd.read_pickle(fn_test, lines=True)
+        print(args.features)
         X_train, X_test = np.array(df_train["embeddings"].tolist()), np.array(df_test["embeddings"].tolist())
     elif args.features == "tfidf":
+        df_train = pd.read_json(fn_train, lines=True)
+
+        # shuffle
+        df_train = df_train.sample(frac=1)
+        df_test = pd.read_json(fn_test, lines=True)
+        print(args.features)
         vect = CountVectorizer(max_df=0.7, min_df=3, ngram_range=(1, 2), lowercase=True, stop_words="english")
         tfidf = TfidfTransformer()
         vectorized_train = vect.fit_transform(df_train["text"])

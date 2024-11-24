@@ -10,22 +10,21 @@ from sentence_transformers import SentenceTransformer
 def preprocess_data(infile, outfile):
     texts = []
 
+    print("Loading the pre-trained SBERT model")
+    # Load the pre-trained SBERT model
+    model = SentenceTransformer('all-MiniLM-L6-v2')
+
     with open(infile, 'r') as file:
         for line in file:
             item = json.loads(line)  # Parse each line as JSON
             # Assume each line has a "text" field; adjust based on your data's structure
             if "text" in item:
                 texts.append(item["text"])
-
-    print("Loading the pre-trained SBERT model")
-    # Load the pre-trained SBERT model
-    model = SentenceTransformer('all-MiniLM-L6-v2')
-
-    print("Computing embeddings")
-    # Compute embeddings
-    embeddings = model.encode(texts)
-
-    out = {"embeddings": embeddings}
+                print("Computing embeddings")
+                # Compute embeddings
+                embeddings = model.encode(texts)
+                out = {"embeddings": embeddings, "label": item["label"]}
+                print(out)
 
     with open(outfile, 'wb') as file:
         pickle.dump(out, file)

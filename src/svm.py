@@ -2,6 +2,7 @@ import argparse
 import os
 import numpy as np
 import pandas as pd
+import random
 from sklearn import metrics
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
@@ -17,8 +18,9 @@ def evaluate(y, preds):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--path", type=str, default="ag_news", help="")
-    parser.add_argument("--topk", type=int, default=5, help="")
     parser.add_argument("--features", type=str, default="sbert", help="")
+    parser.add_argument("--train_file", type=str, default="ag_news/train_embedded.pkl", help="")
+    parser.add_argument("--test_file", type=str, default="ag_news/test_embedded.pkl", help="")
 
     args = parser.parse_args()
 
@@ -29,21 +31,21 @@ if __name__ == "__main__":
         fn_train = os.path.join(args.path, "train_embedded.pkl")
         fn_test = os.path.join(args.path, "test_embedded.pkl")
 
-    df_train = pd.read_pickle(fn_train)
-    df_train = df_train.sample(frac=1)
-    df_test = pd.read_pickle(fn_test)
-    print(args.features)
+
 
     if args.features == "sbert":
-        print(df_train)
+        df_train = pd.read_pickle(fn_train)
+        df_test = pd.read_pickle(fn_test)
         X_train, X_test = np.array(df_train["embeddings"].tolist()), np.array(df_test["embeddings"].tolist())
         print(np.shape(X_train), np.shape(X_test))
     elif args.features == "tfidf":
+        df_train = pd.read_json(fn_train, lines=True)
+        df_test = pd.read_json(fn_test, lines=True)
         vect = CountVectorizer(max_df=0.7, min_df=3, ngram_range=(1, 2), lowercase=True, stop_words="english")
         tfidf = TfidfTransformer()
-        vectorized_train = vect.fit_transform(df_train["sentence"])
+        vectorized_train = vect.fit_transform(df_train["text"])
         X_train = tfidf.fit_transform(vectorized_train)
-        vectorized_test = vect.transform(df_test["sentence"])
+        vectorized_test = vect.transform(df_test["text"])
         X_test = tfidf.transform(vectorized_test)
 
     svm = SGDClassifier(loss='hinge', penalty='l2',
