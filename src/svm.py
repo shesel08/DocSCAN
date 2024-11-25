@@ -14,6 +14,12 @@ def evaluate(y, preds):
     print("accuracy", metrics.accuracy_score(y, preds))
     return metrics.classification_report(y, preds), metrics.accuracy_score(y, preds)
 
+def convertToList(df_data, value):
+    output = []
+    for data in df_data:
+        if value in data:
+            output.append(data[value])
+    return output
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -36,8 +42,10 @@ if __name__ == "__main__":
     if args.features == "sbert":
         df_train = pd.read_pickle(fn_train)
         df_test = pd.read_pickle(fn_test)
-        X_train, X_test = np.array(df_train["embeddings"].tolist()), np.array(df_test["embeddings"].tolist())
-        print(np.shape(X_train), np.shape(X_test))
+        X_train = convertToList(df_train, "embeddings")
+        X_test = convertToList(df_test, "embeddings")
+        y_train = convertToList(df_train, "label")
+        y_test = convertToList(df_test, "label")
     elif args.features == "tfidf":
         df_train = pd.read_json(fn_train, lines=True)
         df_test = pd.read_json(fn_test, lines=True)
@@ -47,14 +55,16 @@ if __name__ == "__main__":
         X_train = tfidf.fit_transform(vectorized_train)
         vectorized_test = vect.transform(df_test["text"])
         X_test = tfidf.transform(vectorized_test)
+        y_train = np.array(df_train["label"])
+        y_test = np.array(df_test["label"])
 
     svm = SGDClassifier(loss='hinge', penalty='l2',
                         alpha=1e-5, random_state=42,
                         max_iter=500, tol=1e-5, class_weight=None, verbose=1)
 
-    svm.fit(X_train, np.array(df_train["label"]))
+    svm.fit(X_train, y_train)
     labels = svm.predict(X_test)
-    classification_report, acc = evaluate(labels, df_test["label"])
+    classification_report, acc = evaluate(labels, y_test)
 
     with open(os.path.join(args.path, "results_svm_" + args.features + ".txt"), "w") as outfile:
         outfile.write(classification_report + "\n")
