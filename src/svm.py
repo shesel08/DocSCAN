@@ -25,8 +25,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--path", type=str, default="ag_news", help="")
     parser.add_argument("--features", type=str, default="sbert", help="")
-    parser.add_argument("--train_file", type=str, default="ag_news/train_embedded.pkl", help="")
-    parser.add_argument("--test_file", type=str, default="ag_news/test_embedded.pkl", help="")
+    parser.add_argument("--train_file", type=str, help="")
+    parser.add_argument("--test_file", type=str, help="")
 
     args = parser.parse_args()
 
@@ -36,7 +36,8 @@ if __name__ == "__main__":
     else:
         fn_train = os.path.join(args.path, "train_embedded.pkl")
         fn_test = os.path.join(args.path, "test_embedded.pkl")
-
+        print(fn_train)
+        print(fn_test)
 
 
     if args.features == "sbert":

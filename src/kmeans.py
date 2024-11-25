@@ -82,6 +82,13 @@ def hungarian_evaluate(targets, predictions, class_names=None,
 
     return {'ACC': acc, 'ARI': ari, 'NMI': nmi, 'hungarian_match': match}
 
+def convertToList(df_data, value):
+    output = []
+    for data in df_data:
+        if value in data:
+            output.append(data[value])
+    print(output)
+    return output
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -109,7 +116,10 @@ if __name__ == "__main__":
         df_train = df_train.sample(frac=1)
         df_test = pd.read_pickle(fn_test, lines=True)
         print(args.features)
-        X_train, X_test = np.array(df_train["embeddings"].tolist()), np.array(df_test["embeddings"].tolist())
+        X_train = convertToList(df_train, "embeddings")
+        X_test = convertToList(df_test, "embeddings")
+        y_train = convertToList(df_train, "label")
+        y_test = convertToList(df_test, "label")
     elif args.features == "tfidf":
         df_train = pd.read_json(fn_train, lines=True)
 
@@ -123,21 +133,24 @@ if __name__ == "__main__":
         X_train = tfidf.fit_transform(vectorized_train)
         vectorized_test = vect.transform(df_test["text"])
         X_test = tfidf.transform(vectorized_test)
+        y_train = np.array(df_train["label"])
+        y_test = np.array(df_test["label"])
+
     results = []
     if args.n_clusters != 1:
         n_clusters = args.n_clusters
     else:
-        n_clusters = len(np.unique(df_train["label"]))
+        n_clusters = len(np.unique(y_test))
 
     print(n_clusters)
-    print(np.unique(df_test["label"], return_counts=True))
+    print(np.unique(y_test, return_counts=True))
     for _ in range(5):
         kmeans = MiniBatchKMeans(n_clusters=n_clusters, batch_size=512).fit(X_train)
         labels = kmeans.predict(X_test)
-        classification_report = evaluate(labels, df_test["label"])
-        label_map = {j: i for i, j in enumerate(np.unique(df_test["label"]))}
-        targets = [label_map[i] for i in df_test["label"]]
-        class_names = np.unique(df_test["label"])
+        classification_report = evaluate(labels, y_test)
+        label_map = {j: i for i, j in enumerate(np.unique(y_test))}
+        targets = [label_map[i] for i in y_test]
+        class_names = np.unique(y_test)
         hungarian_match_metrics = hungarian_evaluate(np.array(targets), np.array(labels), class_names=class_names)
         with open(os.path.join(args.path, "results_kmeans_" + args.features + ".txt"), "w") as outfile:
             outfile.write(classification_report + "\n")

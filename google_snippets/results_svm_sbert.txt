@@ -1,12 +1,16 @@
-              precision    recall  f1-score   support
+                            precision    recall  f1-score   support
 
-           1       0.88      0.90      0.89      1838
-           2       0.97      0.95      0.96      1936
-           3       0.84      0.86      0.85      1856
-           4       0.87      0.84      0.86      1970
+                  business       0.71      0.80      0.75       267
+                 computers       0.76      0.84      0.80       270
+culture-arts-entertainment       0.92      0.79      0.85       385
+         education-science       0.85      0.64      0.73       394
+               engineering       0.77      0.84      0.81       138
+                    health       0.78      0.87      0.82       269
+          politics-society       0.77      0.91      0.83       256
+                    sports       0.92      0.92      0.92       301
 
-    accuracy                           0.89      7600
-   macro avg       0.89      0.89      0.89      7600
-weighted avg       0.89      0.89      0.89      7600
+                  accuracy                           0.81      2280
+                 macro avg       0.81      0.83      0.81      2280
+              weighted avg       0.82      0.81      0.81      2280
 
-ACCURACY0.8894736842105263
+ACCURACY0.8144736842105263
