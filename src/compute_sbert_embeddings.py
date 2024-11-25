@@ -8,7 +8,7 @@ from sentence_transformers import SentenceTransformer
 
 
 def preprocess_data(infile, outfile):
-    texts = []
+    out = []
 
     print("Loading the pre-trained SBERT model")
     # Load the pre-trained SBERT model
@@ -19,12 +19,10 @@ def preprocess_data(infile, outfile):
             item = json.loads(line)  # Parse each line as JSON
             # Assume each line has a "text" field; adjust based on your data's structure
             if "text" in item:
-                texts.append(item["text"])
-                print("Computing embeddings")
+                texts = item["text"]
                 # Compute embeddings
                 embeddings = model.encode(texts)
-                out = {"embeddings": embeddings, "label": item["label"]}
-                print(out)
+                out.append({"embeddings": embeddings, "label": item["label"]})
 
     with open(outfile, 'wb') as file:
         pickle.dump(out, file)
