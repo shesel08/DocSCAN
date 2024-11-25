@@ -1,0 +1,15 @@
+              precision    recall  f1-score   support
+
+           1       0.78      0.87      0.82      1900
+           2       0.91      0.96      0.93      1900
+           3       0.82      0.78      0.80      1900
+           4       0.81      0.71      0.76      1900
+
+    accuracy                           0.83      7600
+   macro avg       0.83      0.83      0.83      7600
+weighted avg       0.83      0.83      0.83      7600
+
+ACC 0.8301315789473684
+ARI 0.61505130600514
+NMI 0.5827688873752976
+hungarian_match [(np.int64(0), np.int64(1)), (np.int64(1), np.int64(3)), (np.int64(2), np.int64(2)), (np.int64(3), np.int64(0))]

@@ -82,13 +82,14 @@ def hungarian_evaluate(targets, predictions, class_names=None,
 
     return {'ACC': acc, 'ARI': ari, 'NMI': nmi, 'hungarian_match': match}
 
+
 def convertToList(df_data, value):
     output = []
     for data in df_data:
         if value in data:
             output.append(data[value])
-    print(output)
     return output
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -106,8 +107,6 @@ if __name__ == "__main__":
     else:
         fn_train = os.path.join(args.path, "train_embedded.pkl")
         fn_test = os.path.join(args.path, "test_embedded.pkl")
-
-
 
     if args.features == "sbert":
         df_train = pd.read_pickle(fn_train)

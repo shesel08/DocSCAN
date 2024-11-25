@@ -1,0 +1,19 @@
+                            precision    recall  f1-score   support
+
+                  business       0.66      0.87      0.75       300
+                 computers       0.68      0.79      0.73       300
+culture-arts-entertainment       0.75      0.86      0.80       330
+         education-science       0.65      0.63      0.64       300
+               engineering       0.00      0.00      0.00       150
+                    health       0.80      0.79      0.79       300
+          politics-society       0.76      0.73      0.75       300
+                    sports       0.91      0.88      0.89       300
+
+                  accuracy                           0.74      2280
+                 macro avg       0.65      0.69      0.67      2280
+              weighted avg       0.70      0.74      0.72      2280
+
+ACC 0.7162280701754385
+ARI 0.5287156733960896
+NMI 0.5567621293852795
+hungarian_match [(np.int64(0), np.int64(0)), (np.int64(1), np.int64(6)), (np.int64(2), np.int64(2)), (np.int64(3), np.int64(5)), (np.int64(4), np.int64(1)), (np.int64(5), np.int64(3)), (np.int64(6), np.int64(4)), (np.int64(7), np.int64(7))]
