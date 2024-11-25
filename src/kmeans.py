@@ -110,11 +110,8 @@ if __name__ == "__main__":
 
 
     if args.features == "sbert":
-        df_train = pd.read_pickle(fn_train, lines=True)
-
-        # shuffle
-        df_train = df_train.sample(frac=1)
-        df_test = pd.read_pickle(fn_test, lines=True)
+        df_train = pd.read_pickle(fn_train)
+        df_test = pd.read_pickle(fn_test)
         print(args.features)
         X_train = convertToList(df_train, "embeddings")
         X_test = convertToList(df_test, "embeddings")
