@@ -43,7 +43,7 @@ class DocSCANPipeline():
 				labels.append(line["label"])
 		df = pd.DataFrame(list(zip(sentences, labels)), columns=["sentence", "label"])
 		return df
-			
+
 	def embedd_sentences(self, sentences):
 		embedder = SentenceTransformer(self.args.sbert_model)
 		embedder.max_seq_length = self.args.max_seq_length
@@ -54,7 +54,7 @@ class DocSCANPipeline():
 		if indices is None:
 			indices = self.memory_bank.mine_nearest_neighbors(self.args.num_neighbors, show_eval=False, calculate_accuracy=False)
 		examples = []
-		for i, index in enumerate(indices): 
+		for i, index in enumerate(indices):
 			anchor = i
 			neighbors = index
 			#print (len(neighbors))
@@ -117,7 +117,7 @@ class DocSCANPipeline():
 			for step, batch in enumerate(epoch_iterator):
 				anchor, neighbor = batch["anchor"], batch["neighbor"]
 				anchors_output, neighbors_output = model(anchor), model(neighbor)
-				
+
 				total_loss, consistency_loss, entropy_loss = criterion(anchors_output, neighbors_output)
 				total_loss.backward()
 				optimizer.step()
@@ -185,7 +185,7 @@ class DocSCANPipeline():
 			self.neighbor_dataset = pd.read_csv(os.path.join(self.args.path, "neighbor_dataset" + str(self.args.num_neighbors) + ".csv"))
 		else:
 			if self.device == "cpu":
-				self.memory_bank = MemoryBank(self.X, "", len(self.X), 
+				self.memory_bank = MemoryBank(self.X, "", len(self.X),
 						        self.X.shape[-1],
 						        self.args.num_classes)
 				self.neighbor_dataset = self.create_neighbor_dataset()
@@ -208,7 +208,7 @@ class DocSCANPipeline():
 			# train data
 
 			print ("docscan trained with n=", self.args.num_classes, "clusters...")
- 
+
 
 			targets_map = {i:j for j,i in enumerate(np.unique(self.df_test["label"]))}
 			targets = [targets_map[i] for i in self.df_test["label"]]
@@ -227,7 +227,7 @@ class DocSCANPipeline():
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--path", type=str, help="path to output path where output of docscan gets saved")
-	parser.add_argument("--sbert_model", default="sentence-transformers/all-mpnet-base-v2", type=str, help="SBERT model to use to embedd sentences") 
+	parser.add_argument("--sbert_model", default="sentence-transformers/all-mpnet-base-v2", type=str, help="SBERT model to use to embedd sentences")
 	parser.add_argument("--max_seq_length", default=128, type=int, help="max seq length of sbert model, sequences longer than this get truncated at this value")
 	parser.add_argument("--topk", type=int, default=5, help="numbers of neighbors retrieved to build SCAN training set")
 	parser.add_argument("--num_classes", type=int, default=10, help="numbers of clusters")

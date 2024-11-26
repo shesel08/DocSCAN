@@ -13,7 +13,7 @@ from sklearn.metrics.pairwise import pairwise_distances
 import matplotlib.pyplot as plt
 from utils.word_clouds import generate_word_clouds
 from spacy.lang.en import English
-from numpy._core.defchararray import strip
+from numpy.char import strip
 
 class DocSCANPipeline():
     def __init__(self, args):
@@ -264,6 +264,8 @@ class DocSCANPipeline():
 
         print("docscan trained with n=", self.args.num_classes, "clusters...")
 
+        print(self.neighbor_dataset.shape)
+        print(predictions.shape)
         self.neighbor_dataset["clusters"] = predictions
         self.neighbor_dataset["probabilities"] = probabilities
 
