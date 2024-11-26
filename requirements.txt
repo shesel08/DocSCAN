@@ -2,8 +2,7 @@ sentence-transformers
 tqdm
 pandas
 scikit-learn
-#faiss
 torch
-yellowbrick==1.3.post1
+yellowbrick
 wordcloud
-spacy==2.3.5
+spacy

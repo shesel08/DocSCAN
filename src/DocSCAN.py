@@ -241,44 +241,42 @@ class DocSCANPipeline():
         print("loading data...")
 
         data = self.load_data()
-        print(data)
 
         print("embedding sentences...")
         self.embeddings = self.embedd_sentences(data)
-        print(self.embeddings)
-        #
-        # # torch tensor of embeddings
-        # self.X = torch.from_numpy(self.embeddings)
-        #
-        # # generate neighbor dataset
-        # print("retrieving neighbors...")
-        # self.memory_bank = MemoryBank(self.X, "", len(self.X),
-        #                               self.X.shape[-1],
-        #                               self.args.num_classes)
-        # self.neighbor_dataset = self.create_neighbor_dataset()
-        #
-        # print("compute optimal amount of clusters...")
-        # if self.args.num_classes is None:
-        #     predictions, probabilities, elbow_value_ = self.calculate_distortion_scores_and_train_model()
-        #     self.args.num_classes = elbow_value_
-        # else:
-        #     predictions, probabilities = self.train_model()
-        #
-        # print("docscan trained with n=", self.args.num_classes, "clusters...")
-        #
-        # df["clusters"] = predictions
-        # df["probabilities"] = probabilities
-        #
-        # # save docscan output
-        # df.to_csv(os.path.join(self.args.outpath, "docscan_clusters.csv"), index=False)
-        #
-        # # visualizations
-        # print("finding prototypical sentences for each cluster...")
-        # self.write_prototypical_examples(df)
-        #
-        # # draw wordclouds
-        # print("drawing wordclouds...")
-        # self.draw_wordclouds(df)
+
+        # torch tensor of embeddings
+        self.X = torch.from_numpy(self.embeddings)
+
+        # generate neighbor dataset
+        print("retrieving neighbors...")
+        self.memory_bank = MemoryBank(self.X, "", len(self.X),
+                                      self.X.shape[-1],
+                                      self.args.num_classes)
+        self.neighbor_dataset = self.create_neighbor_dataset()
+
+        print("compute optimal amount of clusters...")
+        if self.args.num_classes is None:
+            predictions, probabilities, elbow_value_ = self.calculate_distortion_scores_and_train_model()
+            self.args.num_classes = elbow_value_
+        else:
+            predictions, probabilities = self.train_model()
+
+        print("docscan trained with n=", self.args.num_classes, "clusters...")
+
+        self.neighbor_dataset["clusters"] = predictions
+        self.neighbor_dataset["probabilities"] = probabilities
+
+        # save docscan output
+        self.neighbor_dataset.to_csv(os.path.join(self.args.outpath, "docscan_clusters.csv"), index=False)
+
+        # visualizations
+        print("finding prototypical sentences for each cluster...")
+        self.write_prototypical_examples(self.neighbor_dataset)
+
+        # draw wordclouds
+        print("drawing wordclouds...")
+        self.draw_wordclouds(self.neighbor_dataset)
 
 
 if __name__ == "__main__":
