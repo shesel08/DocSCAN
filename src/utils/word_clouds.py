@@ -43,7 +43,7 @@ def generate_word_clouds(topic, df_topic, nlp, outpath, vectorizer=None):
                               height=600, width=800).generate_from_frequencies(df_tfidf.T.sum(axis=1))
     else:
         word_counts = Counter()
-        for sent in df_topic["sentence"]:
+        for sent in df_topic["text"]:
             word_counts.update(
                 [re.sub(r"\W*", "", w.lemma_.lower()) for w in nlp(sent) if not w.is_stop and re.sub(r"\W*", "", w.text)])
 
