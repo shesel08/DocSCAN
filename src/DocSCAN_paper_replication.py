@@ -184,11 +184,10 @@ class DocSCANPipeline():
 		elif os.path.exists(os.path.join(self.args.path, "neighbor_dataset" + str(self.args.num_neighbors) + ".csv")):
 			self.neighbor_dataset = pd.read_csv(os.path.join(self.args.path, "neighbor_dataset" + str(self.args.num_neighbors) + ".csv"))
 		else:
-			if self.device == "cpu":
-				self.memory_bank = MemoryBank(self.X, "", len(self.X),
-						        self.X.shape[-1],
-						        self.args.num_classes)
-				self.neighbor_dataset = self.create_neighbor_dataset()
+			self.memory_bank = MemoryBank(self.X, "", len(self.X),
+							self.X.shape[-1],
+							self.args.num_classes)
+			self.neighbor_dataset = self.create_neighbor_dataset()
 			# else:
 			# 	indices = self.retrieve_neighbours_gpu(self.X.numpy(), num_neighbors = self.args.num_neighbors)
 			# 	self.neighbor_dataset = self.create_neighbor_dataset(indices=indices)
