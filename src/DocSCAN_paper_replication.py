@@ -41,7 +41,7 @@ class DocSCANPipeline():
 				line = json.loads(line)
 				sentences.append(line["text"])
 				labels.append(line["label"])
-		df = pd.DataFrame(list(zip(sentences, labels)), columns=["sentence", "label"])
+		df = pd.DataFrame(list(zip(sentences, labels)), columns=["text", "label"])
 		return df
 
 	def embedd_sentences(self, sentences):
@@ -71,20 +71,20 @@ class DocSCANPipeline():
 		#sys.exit(0)
 		return df
 
-	def retrieve_neighbours_gpu(self, X, batchsize=16384, num_neighbors=5):
-		import faiss
-		res = faiss.StandardGpuResources()  # use a single GPU
-		n, dim = X.shape[0], X.shape[1]
-		index = faiss.IndexFlatIP(dim) # create CPU index
-		gpu_index_flat = faiss.index_cpu_to_gpu(res, 0, index) # create GPU index
-		gpu_index_flat.add(X)         # add vectors to the index
-
-		all_indices = []
-		for i in tqdm(range(0, n, batchsize)):
-			features = X[i:i + batchsize]
-			distances, indices = gpu_index_flat.search(features, num_neighbors)
-			all_indices.extend(indices)
-		return all_indices
+	# def retrieve_neighbours_gpu(self, X, batchsize=16384, num_neighbors=5):
+	# 	import faiss
+	# 	res = faiss.StandardGpuResources()  # use a single GPU
+	# 	n, dim = X.shape[0], X.shape[1]
+	# 	index = faiss.IndexFlatIP(dim) # create CPU index
+	# 	gpu_index_flat = faiss.index_cpu_to_gpu(res, 0, index) # create GPU index
+	# 	gpu_index_flat.add(X)         # add vectors to the index
+	#
+	# 	all_indices = []
+	# 	for i in tqdm(range(0, n, batchsize)):
+	# 		features = X[i:i + batchsize]
+	# 		distances, indices = gpu_index_flat.search(features, num_neighbors)
+	# 		all_indices.extend(indices)
+	# 	return all_indices
 
 	def get_predictions(self, model, dataloader):
 		predictions, probs = [], []
@@ -163,7 +163,7 @@ class DocSCANPipeline():
 		if os.path.exists(os.path.join(self.args.path, "embeddings.npy")):
 			self.embeddings = np.load(os.path.join(self.args.path, "embeddings.npy"))
 		else:
-			self.embeddings = self.embedd_sentences(df_train["sentence"])
+			self.embeddings = self.embedd_sentences(df_train["text"])
 			np.save(os.path.join(self.args.path, "embeddings"), self.embeddings)
 
 		# torch tensor of embeddings
@@ -171,7 +171,7 @@ class DocSCANPipeline():
 		if os.path.exists(os.path.join(self.args.path, "embeddings_test.npy")):
 			self.embeddings_test = np.load(os.path.join(self.args.path, "embeddings_test.npy"))
 		else:
-			self.embeddings_test = self.embedd_sentences(self.df_test["sentence"])
+			self.embeddings_test = self.embedd_sentences(self.df_test["text"])
 			np.save(os.path.join(self.args.path, "embeddings_test"), self.embeddings_test)
 
 		self.X_test = torch.from_numpy(self.embeddings_test)
@@ -189,9 +189,9 @@ class DocSCANPipeline():
 						        self.X.shape[-1],
 						        self.args.num_classes)
 				self.neighbor_dataset = self.create_neighbor_dataset()
-			else:
-				indices = self.retrieve_neighbours_gpu(self.X.numpy(), num_neighbors = self.args.num_neighbors)
-				self.neighbor_dataset = self.create_neighbor_dataset(indices=indices)
+			# else:
+			# 	indices = self.retrieve_neighbours_gpu(self.X.numpy(), num_neighbors = self.args.num_neighbors)
+			# 	self.neighbor_dataset = self.create_neighbor_dataset(indices=indices)
 
 		results = []
 

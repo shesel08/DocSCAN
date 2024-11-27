@@ -26,9 +26,9 @@ class DocSCANPipeline():
         if self.args.data_format == "from_txt":
             with open(self.args.infile) as f:
                 sentences = [line.strip() for line in f]
-            df = pd.DataFrame(sentences, columns=["sentence"])
+            df = pd.DataFrame(sentences, columns=["text"])
         elif self.args.data_format == "from_csv":
-            df = pd.read_csv(self.args.infile, header=None, names=['label', 'heading', 'sentence'])
+            df = pd.read_csv(self.args.infile, header=None, names=['label', 'heading', 'text'])
         return df
 
     def embedd_sentences(self, sentences):
@@ -207,7 +207,7 @@ class DocSCANPipeline():
                 probabilites = [i[int(topic)] for i in df["probabilities"]]
                 indices = np.argsort(probabilites)[::-1][:10]
                 for i in indices:
-                    outfile.write(str(topic) + "\t" + df.iloc[i]["sentence"] + "\n")
+                    outfile.write(str(topic) + "\t" + df.iloc[i]["text"] + "\n")
 
     def custom_tokenizer(self, nlp):
         infix_re = spacy.util.compile_infix_regex([r"[\w]+(?:-\w)+"])
@@ -224,7 +224,7 @@ class DocSCANPipeline():
         os.makedirs(outpath, exist_ok=True)
         if self.args.wordcloud_frequencies == "tf-idf":
             vectorizer = TfidfVectorizer(stop_words='english', min_df=5, max_df=0.75, max_features=10000)
-            vectorizer.fit(df["sentence"])
+            vectorizer.fit(df["text"])
 
         for topic in tqdm(np.unique(df["clusters"])):
             try:
@@ -244,7 +244,7 @@ class DocSCANPipeline():
         df = self.load_data()
 
         print("embedding sentences...")
-        self.embeddings = self.embedd_sentences(df["sentence"])
+        self.embeddings = self.embedd_sentences(df["text"])
 
         # torch tensor of embeddings
         self.X = torch.from_numpy(self.embeddings)

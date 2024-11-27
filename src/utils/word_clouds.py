@@ -90,13 +90,13 @@ def generate_word_clouds(topic, df_topic, nlp, outpath, vectorizer=None):
     # print (save_filename)
     plt.savefig(os.path.join(outpath, save_filename))
 
-def custom_tokenizer(self, nlp):
+def custom_tokenizer(nlp):
     infix_re = spacy.util.compile_infix_regex([r"[\w]+(?:-\w)+"])
     return Tokenizer(nlp.vocab, infix_finditer=infix_re.finditer)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--path", default="20newsgroup", type=str, help="", required=True)
+    parser.add_argument("--path", default="ag_news", type=str, help="", required=True)
     parser.add_argument("--outpath", default="wordclouds", type=str, help="")
     parser.add_argument("--frequencies", default="tf-idf", type=str, help="")
 
@@ -121,7 +121,7 @@ if __name__ == "__main__":
 
     if args.frequencies == "tf-idf":
         vectorizer = TfidfVectorizer(stop_words='english', min_df=5, max_df=0.75, max_features=10000)
-        vectorizer.fit(df["sentence"])
+        vectorizer.fit(df["text"])
 
     for topic in tqdm(np.unique(clusters)):
         try:
