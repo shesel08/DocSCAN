@@ -13,7 +13,6 @@ from sklearn.metrics.pairwise import pairwise_distances
 import matplotlib.pyplot as plt
 from utils.word_clouds import generate_word_clouds
 from spacy.lang.en import English
-from numpy.char import strip
 
 class DocSCANPipeline():
     def __init__(self, args):
@@ -22,17 +21,18 @@ class DocSCANPipeline():
         os.makedirs(self.args.outpath, exist_ok=True)
 
     def load_data(self):
+        test_data = []
         if self.args.data_format == "from_txt":
             with open(self.args.infile) as f:
-                sentences = [line.strip() for line in f]
-            df = pd.DataFrame(sentences)
-            test_data = df.values
+                for line in f:
+                    line = line.strip().split()
+                    text = " ".join(line[:-1])
+                    test_data.append(text)
         elif self.args.data_format == "from_csv":
             df = pd.read_csv(self.args.infile)
             dataset = df.values
-            test_data = []
             for value in dataset:
-                test_data.append(strip(value[2]))
+                test_data.append(value[2])
         return test_data
 
     def embedd_sentences(self, sentences):
@@ -254,31 +254,31 @@ class DocSCANPipeline():
                                       self.X.shape[-1],
                                       self.args.num_classes)
         self.neighbor_dataset = self.create_neighbor_dataset()
-
-        print("compute optimal amount of clusters...")
-        if self.args.num_classes is None:
-            predictions, probabilities, elbow_value_ = self.calculate_distortion_scores_and_train_model()
-            self.args.num_classes = elbow_value_
-        else:
-            predictions, probabilities = self.train_model()
-
-        print("docscan trained with n=", self.args.num_classes, "clusters...")
-
-        print(self.neighbor_dataset.shape)
-        print(predictions.shape)
-        self.neighbor_dataset["clusters"] = predictions
-        self.neighbor_dataset["probabilities"] = probabilities
-
-        # save docscan output
-        self.neighbor_dataset.to_csv(os.path.join(self.args.outpath, "docscan_clusters.csv"), index=False)
-
-        # visualizations
-        print("finding prototypical sentences for each cluster...")
-        self.write_prototypical_examples(self.neighbor_dataset)
-
-        # draw wordclouds
-        print("drawing wordclouds...")
-        self.draw_wordclouds(self.neighbor_dataset)
+        #
+        # print("compute optimal amount of clusters...")
+        # if self.args.num_classes is None:
+        #     predictions, probabilities, elbow_value_ = self.calculate_distortion_scores_and_train_model()
+        #     self.args.num_classes = elbow_value_
+        # else:
+        #     predictions, probabilities = self.train_model()
+        #
+        # print("docscan trained with n=", self.args.num_classes, "clusters...")
+        #
+        # print(self.neighbor_dataset.shape)
+        # print(predictions.shape)
+        # self.neighbor_dataset["clusters"] = predictions
+        # self.neighbor_dataset["probabilities"] = probabilities
+        #
+        # # save docscan output
+        # self.neighbor_dataset.to_csv(os.path.join(self.args.outpath, "docscan_clusters.csv"), index=False)
+        #
+        # # visualizations
+        # print("finding prototypical sentences for each cluster...")
+        # self.write_prototypical_examples(self.neighbor_dataset)
+        #
+        # # draw wordclouds
+        # print("drawing wordclouds...")
+        # self.draw_wordclouds(self.neighbor_dataset)
 
 
 if __name__ == "__main__":
