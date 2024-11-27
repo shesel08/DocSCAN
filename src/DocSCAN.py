@@ -12,6 +12,8 @@ import numpy as np
 from sklearn.metrics.pairwise import pairwise_distances
 import matplotlib.pyplot as plt
 from utils.word_clouds import generate_word_clouds
+import spacy
+from spacy.tokenizer import Tokenizer
 from spacy.lang.en import English
 
 class DocSCANPipeline():
@@ -21,19 +23,13 @@ class DocSCANPipeline():
         os.makedirs(self.args.outpath, exist_ok=True)
 
     def load_data(self):
-        test_data = []
         if self.args.data_format == "from_txt":
             with open(self.args.infile) as f:
-                for line in f:
-                    line = line.strip().split()
-                    text = " ".join(line[:-1])
-                    test_data.append(text)
+                sentences = [line.strip() for line in f]
+            df = pd.DataFrame(sentences, columns=["sentence"])
         elif self.args.data_format == "from_csv":
-            df = pd.read_csv(self.args.infile)
-            dataset = df.values
-            for value in dataset:
-                test_data.append(value[2])
-        return test_data
+            df = pd.read_csv(self.args.infile, header=None, names=['label', 'heading', 'sentence'])
+        return df
 
     def embedd_sentences(self, sentences):
         embedder = SentenceTransformer(self.args.sbert_model)
@@ -211,19 +207,24 @@ class DocSCANPipeline():
                 probabilites = [i[int(topic)] for i in df["probabilities"]]
                 indices = np.argsort(probabilites)[::-1][:10]
                 for i in indices:
-                    outfile.write(str(topic) + "\t" + df.iloc[i]["text"] + "\n")
+                    outfile.write(str(topic) + "\t" + df.iloc[i]["sentence"] + "\n")
+
+    def custom_tokenizer(self, nlp):
+        infix_re = spacy.util.compile_infix_regex([r"[\w]+(?:-\w)+"])
+        return Tokenizer(nlp.vocab, infix_finditer=infix_re.finditer)
 
     def draw_wordclouds(self, df, outpath="wordclouds"):
 
         nlp = English()
-        tokenizer = nlp.Defaults.create_tokenizer(nlp)
-        nlp.add_pipe(nlp.create_pipe('sentencizer'))
+        # Replace the default tokenizer with the custom one
+        nlp.tokenizer = self.custom_tokenizer(nlp)
+        nlp.add_pipe('sentencizer')
 
         outpath = os.path.join(self.args.outpath, outpath)
         os.makedirs(outpath, exist_ok=True)
         if self.args.wordcloud_frequencies == "tf-idf":
             vectorizer = TfidfVectorizer(stop_words='english', min_df=5, max_df=0.75, max_features=10000)
-            vectorizer.fit(df["text"])
+            vectorizer.fit(df["sentence"])
 
         for topic in tqdm(np.unique(df["clusters"])):
             try:
@@ -240,10 +241,10 @@ class DocSCANPipeline():
         print(self.args.num_classes)
         print("loading data...")
 
-        data = self.load_data()
+        df = self.load_data()
 
         print("embedding sentences...")
-        self.embeddings = self.embedd_sentences(data)
+        self.embeddings = self.embedd_sentences(df["sentence"])
 
         # torch tensor of embeddings
         self.X = torch.from_numpy(self.embeddings)
@@ -254,31 +255,29 @@ class DocSCANPipeline():
                                       self.X.shape[-1],
                                       self.args.num_classes)
         self.neighbor_dataset = self.create_neighbor_dataset()
-        #
-        # print("compute optimal amount of clusters...")
-        # if self.args.num_classes is None:
-        #     predictions, probabilities, elbow_value_ = self.calculate_distortion_scores_and_train_model()
-        #     self.args.num_classes = elbow_value_
-        # else:
-        #     predictions, probabilities = self.train_model()
-        #
-        # print("docscan trained with n=", self.args.num_classes, "clusters...")
-        #
-        # print(self.neighbor_dataset.shape)
-        # print(predictions.shape)
-        # self.neighbor_dataset["clusters"] = predictions
-        # self.neighbor_dataset["probabilities"] = probabilities
-        #
-        # # save docscan output
-        # self.neighbor_dataset.to_csv(os.path.join(self.args.outpath, "docscan_clusters.csv"), index=False)
-        #
-        # # visualizations
-        # print("finding prototypical sentences for each cluster...")
-        # self.write_prototypical_examples(self.neighbor_dataset)
-        #
-        # # draw wordclouds
-        # print("drawing wordclouds...")
-        # self.draw_wordclouds(self.neighbor_dataset)
+
+        print("compute optimal amount of clusters...")
+        if self.args.num_classes is None:
+            predictions, probabilities, elbow_value_ = self.calculate_distortion_scores_and_train_model()
+            self.args.num_classes = elbow_value_
+        else:
+            predictions, probabilities = self.train_model()
+
+        print("docscan trained with n=", self.args.num_classes, "clusters...")
+
+        df["clusters"] = predictions
+        df["probabilities"] = probabilities
+
+        # save docscan output
+        df.to_csv(os.path.join(self.args.outpath, "docscan_clusters.csv"), index=False)
+
+        # visualizations
+        print("finding prototypical sentences for each cluster...")
+        self.write_prototypical_examples(df)
+
+        # draw wordclouds
+        print("drawing wordclouds...")
+        self.draw_wordclouds(df)
 
 
 if __name__ == "__main__":

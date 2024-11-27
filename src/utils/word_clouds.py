@@ -1,8 +1,10 @@
 import os
 import argparse
 import pandas as pd
+import spacy
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
+from spacy.tokenizer import Tokenizer
 from spacy.lang.en import English
 from collections import Counter
 import numpy as np
@@ -21,7 +23,7 @@ def load_clusters(fn):
 def generate_word_clouds(topic, df_topic, nlp, outpath, vectorizer=None):
     if vectorizer is not None:
         vecs = vectorizer.transform(df_topic["sentence"])
-        feature_names = vectorizer.get_feature_names()
+        feature_names = vectorizer.get_feature_names_out()
         dense = vecs.todense().tolist()
         df_tfidf = pd.DataFrame(dense, columns=feature_names)
         maincol = randint(0, 360)
@@ -43,7 +45,7 @@ def generate_word_clouds(topic, df_topic, nlp, outpath, vectorizer=None):
         word_counts = Counter()
         for sent in df_topic["sentence"]:
             word_counts.update(
-                [re.sub("\W*", "", w.lemma_.lower()) for w in nlp(sent) if not w.is_stop and re.sub("\W*", "", w.text)])
+                [re.sub(r"\W*", "", w.lemma_.lower()) for w in nlp(sent) if not w.is_stop and re.sub(r"\W*", "", w.text)])
 
         maincol = randint(0, 360)
 
@@ -88,6 +90,9 @@ def generate_word_clouds(topic, df_topic, nlp, outpath, vectorizer=None):
     # print (save_filename)
     plt.savefig(os.path.join(outpath, save_filename))
 
+def custom_tokenizer(self, nlp):
+    infix_re = spacy.util.compile_infix_regex([r"[\w]+(?:-\w)+"])
+    return Tokenizer(nlp.vocab, infix_finditer=infix_re.finditer)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -101,8 +106,9 @@ if __name__ == "__main__":
     os.makedirs(outpath, exist_ok=True)
 
     nlp = English()
-    tokenizer = nlp.Defaults.create_tokenizer(nlp)
-    nlp.add_pipe(nlp.create_pipe('sentencizer'))
+    # Replace the default tokenizer with the custom one
+    nlp.tokenizer = custom_tokenizer(nlp)
+    nlp.add_pipe('sentencizer')
 
     if os.path.exists(os.path.join(args.path, "test_embedded.pkl")):
         filename = os.path.join(args.path, "test_embedded.pkl")
